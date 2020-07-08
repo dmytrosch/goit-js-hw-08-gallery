@@ -19,7 +19,7 @@ function createMarkUp() {
         <a class="gallery__link" href=${image.original}>
         <img class="gallery__image" src=${image.preview} data-number="${
       index + 1
-    }" data-sourse=${image.original} alt=${image.description}></a>
+    }" data-source=${image.original} alt=${image.description}></a>
         </li>
         `;
     return acc;
@@ -30,7 +30,7 @@ function openLightbox(event) {
   event.preventDefault();
   if (event.target.nodeName !== "UL") {
     refs.lightbox.classList.add("is-open");
-    showImage(event.target.src);
+    showImage(event.target.dataset.source);
     imageNumber = Number(event.target.dataset.number);
     refs.closeOverlayBtn.addEventListener("click", closeOverlay);
     refs.lightbox.addEventListener("click", clickOnOutClose);
