@@ -32,21 +32,28 @@ function openLightbox(event) {
     refs.lightbox.classList.add("is-open");
     showImage(event.target.dataset.source);
     imageNumber = Number(event.target.dataset.number);
-    refs.closeOverlayBtn.addEventListener("click", closeOverlay);
-    refs.lightbox.addEventListener("click", clickOnOutClose);
-    window.addEventListener("keydown", onOverlayPress);
+    addOverlayListeners();
   }
 }
+function addOverlayListeners() {
+  refs.closeOverlayBtn.addEventListener("click", closeOverlay);
+  refs.lightbox.addEventListener("click", clickOnOutClose);
+  window.addEventListener("keydown", onOverlayPress);
+}
 function closeOverlay() {
-  window.removeEventListener("keydown", onOverlayPress);
   refs.lightbox.classList.remove("is-open");
+  removeOverlayListeners();
+}
+function removeOverlayListeners() {
+  window.removeEventListener("keydown", onOverlayPress);
+  refs.lightbox.removeEventListener("click", clickOnOutClose);
+  refs.closeOverlayBtn.removeEventListener("click", closeOverlay);
 }
 function showImage(link) {
   refs.lightboxImg.src = link;
 }
 function clickOnOutClose(event) {
   if (event.target.className === "lightbox__content") {
-    refs.lightbox.removeEventListener("click", clickOnOutClose);
     closeOverlay();
   }
 }
@@ -68,7 +75,7 @@ function onOverlayPress(event) {
       imageNumber = 1;
     }
   }
-  searchSrc()
+  searchSrc();
 }
 function searchSrc() {
   const src = cards[imageNumber - 1].original;
