@@ -5,12 +5,16 @@ const refs = {
   lightbox: document.querySelector(".js-lightbox"),
   lightboxImg: document.querySelector(".lightbox__image"),
   closeOverlayBtn: document.querySelector(".lightbox__button"),
+  content: document.querySelector('.lightbox__content'),
 };
 let imageNumber = 0;
 
-refs.gallery.insertAdjacentHTML("afterbegin", createMarkUp(cards));
 refs.gallery.addEventListener("click", openLightbox);
+renderItems(createMarkUp(cards), refs.gallery);
 
+function renderItems(markup, list) {
+  list.insertAdjacentHTML("afterbegin", markup);
+}
 function createMarkUp(arrCards) {
   const markUp = arrCards.reduce((acc, image, index) => {
     acc += `
@@ -36,7 +40,7 @@ function openLightbox(event) {
 }
 function addOverlayListeners() {
   refs.closeOverlayBtn.addEventListener("click", closeOverlay);
-  refs.lightbox.addEventListener("click", clickOnOutClose);
+  refs.content.addEventListener("click", clickOnOutClose);
   window.addEventListener("keydown", onOverlayPressEsc);
   window.addEventListener("keydown", onOverlayPressLeftRight);
   window.addEventListener("keydown", startSlideShow);
@@ -49,15 +53,14 @@ function removeOverlayListeners() {
   window.removeEventListener("keydown", onOverlayPressEsc);
   window.removeEventListener("keydown", onOverlayPressLeftRight);
   // window.removeEventListener("keydown", stopSlideShow);
-  refs.lightbox.removeEventListener("click", clickOnOutClose);
-  refs.closeOverlayBtn.removeEventListener("click", closeOverlay);
+  window.removeEventListener("click", clickOnOutClose);
+  window.removeEventListener("click", closeOverlay);
 }
 function showImage(link) {
   refs.lightboxImg.src = link;
 }
 function clickOnOutClose(event) {
-  console.log(event.target, event.currentTarget);
-  if (event.target.className === "lightbox__content") {
+  if (event.target == event.currentTarget) {
     closeOverlay();
   }
 }
