@@ -5,15 +5,14 @@ const refs = {
   lightbox: document.querySelector(".js-lightbox"),
   lightboxImg: document.querySelector(".lightbox__image"),
   closeOverlayBtn: document.querySelector(".lightbox__button"),
-  //   overlay: document.querySelector(".lightbox__overlay"),
 };
 let imageNumber = 0;
 
-refs.gallery.insertAdjacentHTML("afterbegin", createMarkUp());
+refs.gallery.insertAdjacentHTML("afterbegin", createMarkUp(cards));
 refs.gallery.addEventListener("click", openLightbox);
 
-function createMarkUp() {
-  const markUp = cards.reduce((acc, image, index) => {
+function createMarkUp(arrCards) {
+  const markUp = arrCards.reduce((acc, image, index) => {
     acc += `
         <li class="gallery__item">
         <a class="gallery__link" href=${image.original}>
@@ -28,7 +27,7 @@ function createMarkUp() {
 }
 function openLightbox(event) {
   event.preventDefault();
-  if (event.target.nodeName !== "UL") {
+  if (event.target.tagName === "IMG") {
     refs.lightbox.classList.add("is-open");
     showImage(event.target.dataset.source);
     imageNumber = Number(event.target.dataset.number);
@@ -38,14 +37,18 @@ function openLightbox(event) {
 function addOverlayListeners() {
   refs.closeOverlayBtn.addEventListener("click", closeOverlay);
   refs.lightbox.addEventListener("click", clickOnOutClose);
-  window.addEventListener("keydown", onOverlayPress);
+  window.addEventListener("keydown", onOverlayPressEsc);
+  window.addEventListener("keydown", onOverlayPressLeftRight);
+  window.addEventListener("keydown", startSlideShow);
 }
 function closeOverlay() {
   refs.lightbox.classList.remove("is-open");
   removeOverlayListeners();
 }
 function removeOverlayListeners() {
-  window.removeEventListener("keydown", onOverlayPress);
+  window.removeEventListener("keydown", onOverlayPressEsc);
+  window.removeEventListener("keydown", onOverlayPressLeftRight);
+  // window.removeEventListener("keydown", stopSlideShow);
   refs.lightbox.removeEventListener("click", clickOnOutClose);
   refs.closeOverlayBtn.removeEventListener("click", closeOverlay);
 }
@@ -53,31 +56,61 @@ function showImage(link) {
   refs.lightboxImg.src = link;
 }
 function clickOnOutClose(event) {
+  console.log(event.target, event.currentTarget);
   if (event.target.className === "lightbox__content") {
     closeOverlay();
   }
 }
-function onOverlayPress(event) {
+function onOverlayPressEsc(event) {
   if (event.code === "Escape") {
     closeOverlay();
   }
+}
+function onOverlayPressLeftRight(event) {
   if (event.code === "ArrowLeft") {
-    if (imageNumber > 1) {
-      imageNumber--;
-    } else {
-      imageNumber = cards.length;
-    }
+    prevImage();
   }
   if (event.code === "ArrowRight") {
-    if (imageNumber < cards.length) {
-      imageNumber++;
-    } else {
-      imageNumber = 1;
-    }
+    nextImage();
   }
-  searchSrc();
 }
 function searchSrc() {
   const src = cards[imageNumber - 1].original;
   showImage(src);
+}
+function startSlideShow(event) {
+  if (event.code === "Space") {
+    const slideShowInterval = setInterval(nextImage, 3000);
+    window.removeEventListener("keydown", startSlideShow);
+    window.addEventListener(
+      "keydown",
+      secondPressSpace(event, slideShowInterval)
+    );
+  }
+}
+function secondPressSpace(event, interval) {
+  if (event.code === "Space") {
+    clearInterval(interval);
+    window.removeEventListener(
+      "keydown",
+      secondPressSpace(event, slideShowInterval)
+    );
+  }
+}
+
+function nextImage() {
+  if (imageNumber < cards.length) {
+    imageNumber++;
+  } else {
+    imageNumber = 1;
+  }
+  searchSrc();
+}
+function prevImage() {
+  if (imageNumber > 1) {
+    imageNumber--;
+  } else {
+    imageNumber = cards.length;
+  }
+  searchSrc();
 }
