@@ -5,9 +5,15 @@ const refs = {
   lightbox: document.querySelector(".js-lightbox"),
   lightboxImg: document.querySelector(".lightbox__image"),
   closeOverlayBtn: document.querySelector(".lightbox__button"),
-  content: document.querySelector('.lightbox__content'),
+  content: document.querySelector(".lightbox__content"),
+};
+const slideShowoptions = {
+  disable: true,
+  timerId: null,
 };
 let imageNumber = 0;
+// let disable = true;
+// let timerId = null;
 
 refs.gallery.addEventListener("click", openLightbox);
 renderItems(createMarkUp(cards), refs.gallery);
@@ -44,17 +50,21 @@ function addOverlayListeners() {
   window.addEventListener("keydown", onOverlayPressEsc);
   window.addEventListener("keydown", onOverlayPressLeftRight);
   window.addEventListener("keydown", startSlideShow);
+  refs.lightboxImg.addEventListener("click", onImageClick);
 }
 function closeOverlay() {
   refs.lightbox.classList.remove("is-open");
+  clearInterval(slideShowoptions.timerId);
+  slideShowoptions.disable = true;
   removeOverlayListeners();
 }
 function removeOverlayListeners() {
   window.removeEventListener("keydown", onOverlayPressEsc);
   window.removeEventListener("keydown", onOverlayPressLeftRight);
-  // window.removeEventListener("keydown", stopSlideShow);
+  window.removeEventListener("keydown", startSlideShow);
   window.removeEventListener("click", clickOnOutClose);
   window.removeEventListener("click", closeOverlay);
+  window.removeEventListener("click", onImageClick);
 }
 function showImage(link) {
   refs.lightboxImg.src = link;
@@ -83,24 +93,15 @@ function searchSrc() {
 }
 function startSlideShow(event) {
   if (event.code === "Space") {
-    const slideShowInterval = setInterval(nextImage, 3000);
-    window.removeEventListener("keydown", startSlideShow);
-    window.addEventListener(
-      "keydown",
-      secondPressSpace(event, slideShowInterval)
-    );
+    if (slideShowoptions.disable) {
+      slideShowoptions.timerId = setInterval(nextImage, 3000);
+      slideShowoptions.disable = false;
+    } else {
+      clearInterval(slideShowoptions.timerId);
+      slideShowoptions.disable = true;
+    }
   }
 }
-function secondPressSpace(event, interval) {
-  if (event.code === "Space") {
-    clearInterval(interval);
-    window.removeEventListener(
-      "keydown",
-      secondPressSpace(event, slideShowInterval)
-    );
-  }
-}
-
 function nextImage() {
   if (imageNumber < cards.length) {
     imageNumber++;
@@ -116,4 +117,11 @@ function prevImage() {
     imageNumber = cards.length;
   }
   searchSrc();
+}
+function onImageClick(event) {
+  if (event.offsetX >= this.offsetWidth / 2) {
+    nextImage();
+  } else {
+    prevImage();
+  }
 }
