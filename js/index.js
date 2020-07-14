@@ -7,17 +7,43 @@ const refs = {
   closeOverlayBtn: document.querySelector(".lightbox__button"),
   content: document.querySelector(".lightbox__content"),
 };
-const slideShowoptions = {
+const slideShowOptions = {
   disable: true,
   timerId: null,
 };
 let imageNumber = 0;
-// let disable = true;
-// let timerId = null;
 
-refs.gallery.addEventListener("click", openLightbox);
-renderItems(createMarkUp(cards), refs.gallery);
+/////
 
+function showImage(link) {
+  refs.lightboxImg.src = link;
+}
+function searchSrc() {
+  const src = cards[imageNumber - 1].original;
+  showImage(src);
+}
+function nextImage() {
+  if (imageNumber < cards.length) {
+    imageNumber++;
+  } else {
+    imageNumber = 1;
+  }
+  searchSrc();
+}
+function prevImage() {
+  if (imageNumber > 1) {
+    imageNumber--;
+  } else {
+    imageNumber = cards.length;
+  }
+  searchSrc();
+}
+function sliderZeroing() {
+  clearInterval(slideShowOptions.timerId);
+  slideShowOptions.disable = true;
+}
+
+//////
 function renderItems(markup, list) {
   list.insertAdjacentHTML("afterbegin", markup);
 }
@@ -44,30 +70,15 @@ function openLightbox(event) {
     addOverlayListeners();
   }
 }
-function addOverlayListeners() {
-  refs.closeOverlayBtn.addEventListener("click", closeOverlay);
-  refs.content.addEventListener("click", clickOnOutClose);
-  window.addEventListener("keydown", onOverlayPressEsc);
-  window.addEventListener("keydown", onOverlayPressLeftRight);
-  window.addEventListener("keydown", startSlideShow);
-  refs.lightboxImg.addEventListener("click", onImageClick);
-}
-function closeOverlay() {
-  refs.lightbox.classList.remove("is-open");
-  clearInterval(slideShowoptions.timerId);
-  slideShowoptions.disable = true;
-  removeOverlayListeners();
-}
-function removeOverlayListeners() {
-  window.removeEventListener("keydown", onOverlayPressEsc);
-  window.removeEventListener("keydown", onOverlayPressLeftRight);
-  window.removeEventListener("keydown", startSlideShow);
-  window.removeEventListener("click", clickOnOutClose);
-  window.removeEventListener("click", closeOverlay);
-  window.removeEventListener("click", onImageClick);
-}
-function showImage(link) {
-  refs.lightboxImg.src = link;
+function startSlideShow(event) {
+  if (event.code === "Space") {
+    if (slideShowOptions.disable) {
+      slideShowOptions.timerId = setInterval(nextImage, 3000);
+      slideShowOptions.disable = false;
+    } else {
+      sliderZeroing();
+    }
+  }
 }
 function clickOnOutClose(event) {
   if (event.target == event.currentTarget) {
@@ -87,41 +98,34 @@ function onOverlayPressLeftRight(event) {
     nextImage();
   }
 }
-function searchSrc() {
-  const src = cards[imageNumber - 1].original;
-  showImage(src);
-}
-function startSlideShow(event) {
-  if (event.code === "Space") {
-    if (slideShowoptions.disable) {
-      slideShowoptions.timerId = setInterval(nextImage, 3000);
-      slideShowoptions.disable = false;
-    } else {
-      clearInterval(slideShowoptions.timerId);
-      slideShowoptions.disable = true;
-    }
-  }
-}
-function nextImage() {
-  if (imageNumber < cards.length) {
-    imageNumber++;
-  } else {
-    imageNumber = 1;
-  }
-  searchSrc();
-}
-function prevImage() {
-  if (imageNumber > 1) {
-    imageNumber--;
-  } else {
-    imageNumber = cards.length;
-  }
-  searchSrc();
-}
 function onImageClick(event) {
   if (event.offsetX >= this.offsetWidth / 2) {
     nextImage();
   } else {
     prevImage();
   }
+}
+function closeOverlay() {
+  refs.lightbox.classList.remove("is-open");
+  sliderZeroing();
+  removeOverlayListeners();
+}
+
+/////
+renderItems(createMarkUp(cards), refs.gallery);
+
+/////
+refs.gallery.addEventListener("click", openLightbox);
+function addOverlayListeners() {
+  refs.closeOverlayBtn.addEventListener("click", closeOverlay);
+  refs.content.addEventListener("click", clickOnOutClose);
+  window.addEventListener("keydown", onOverlayPressEsc);
+  window.addEventListener("keydown", onOverlayPressLeftRight);
+  window.addEventListener("keydown", startSlideShow);
+  refs.lightboxImg.addEventListener("click", onImageClick);
+}
+function removeOverlayListeners() {
+  window.removeEventListener("keydown", onOverlayPressEsc);
+  window.removeEventListener("keydown", onOverlayPressLeftRight);
+  window.removeEventListener("keydown", startSlideShow);
 }
