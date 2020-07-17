@@ -116,7 +116,7 @@ function closeOverlay() {
 function showButtons(event) {
   const totalWidth = document.documentElement.clientWidth;
   const imgWidth = refs.lightboxImg.offsetWidth;
-  const buttonsMargin = (totalWidth - imgWidth) / 2 +8;
+  const buttonsMargin = (totalWidth - imgWidth) / 2;
   refs.overlayBtnLeft.style.left = `${buttonsMargin}px`
   refs.overlayBtnRight.style.right = `${buttonsMargin}px`
   refs.overlayBtnLeft.addEventListener('click', prevImage)
