@@ -6,6 +6,8 @@ const refs = {
   lightboxImg: document.querySelector(".lightbox__image"),
   closeOverlayBtn: document.querySelector(".lightbox__button"),
   content: document.querySelector(".lightbox__content"),
+  overlayBtnLeft: document.querySelector('.lightbox__btn--left'),
+  overlayBtnRight: document.querySelector('.lightbox__btn--right'),
 };
 const slideShowOptions = {
   disable: true,
@@ -17,6 +19,7 @@ let imageNumber = 0;
 
 function showImage(link) {
   refs.lightboxImg.src = link;
+  refs.lightboxImg.onload = () => showButtons();
 }
 function searchSrc() {
   const src = cards[imageNumber - 1].original;
@@ -110,6 +113,15 @@ function closeOverlay() {
   sliderZeroing();
   removeOverlayListeners();
 }
+function showButtons(event) {
+  const totalWidth = document.documentElement.clientWidth;
+  const imgWidth = refs.lightboxImg.offsetWidth;
+  const buttonsMargin = (totalWidth - imgWidth) / 2 +8;
+  refs.overlayBtnLeft.style.left = `${buttonsMargin}px`
+  refs.overlayBtnRight.style.right = `${buttonsMargin}px`
+  refs.overlayBtnLeft.addEventListener('click', prevImage)
+  refs.overlayBtnRight.addEventListener('click', nextImage)
+}
 
 /////
 renderItems(createMarkUp(cards), refs.gallery);
@@ -123,6 +135,8 @@ function addOverlayListeners() {
   window.addEventListener("keydown", onOverlayPressLeftRight);
   window.addEventListener("keydown", startSlideShow);
   refs.lightboxImg.addEventListener("click", onImageClick);
+  // refs.lightboxImg.addEventListener('mousemove', showButtons)
+  window.onresize = showButtons
 }
 function removeOverlayListeners() {
   window.removeEventListener("keydown", onOverlayPressEsc);
